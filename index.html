@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Forgive me Tammy 💗</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       background-color: #ffe6f0;
@@ -38,14 +39,11 @@
       border: none;
       border-radius: 20px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.2s;
     }
     #yesBtn { background-color: #ff69b4; color: white; }
-    #noBtn  {
-      background-color: #f0a6ca; color: white;
-      position: absolute; /* will move inside container */
-      left: 50%; transform: translateX(-50%); /* start centered */
-    }
+    /* Start as NORMAL (static). We'll switch to absolute later. */
+    #noBtn  { background-color: #f0a6ca; color: white; }
     #musicBtn {
       background-color: #c084fc; color: white;
       font-size: 14px; position: fixed; top: 10px; right: 10px; padding: 8px 15px;
@@ -77,7 +75,7 @@
       music.pause();
       document.getElementById('musicBtn').innerText = "🎵 Play Music";
     } else {
-      music.play().catch(()=>{}); // mobile may require user gesture
+      music.play().catch(()=>{}); // mobile may require a user gesture
       document.getElementById('musicBtn').innerText = "⏸️ Pause Music";
     }
     isPlaying = !isPlaying;
@@ -92,31 +90,41 @@
   const heart = document.getElementById("heart");
   const container = document.getElementById("box");
 
+  function goRunAwayMode() {
+    // switch to absolute only after first interaction
+    noBtn.style.position = "absolute";
+    noBtn.style.zIndex = "2";
+    moveNoButton();
+  }
+
+  function moveNoButton() {
+    const padding = 10;
+    const maxX = container.clientWidth  - noBtn.offsetWidth  - padding;
+    const maxY = container.clientHeight - noBtn.offsetHeight - padding;
+    const i = Math.max(padding, Math.floor(Math.random() * maxX));
+    const j = Math.max(padding, Math.floor(Math.random() * maxY));
+    noBtn.style.left = `${i}px`;
+    noBtn.style.top  = `${j}px`;
+  }
+
+  // First click on "No" changes image/text, then future hovers/taps make it run
   noBtn.addEventListener("click", () => {
     if (noClickCount === 0) {
-      mainImg.src = "IMG_8546.JPG";          // ✅ use exact filename + quotes
+      mainImg.src = "IMG_8546.JPG";   // exact filename + case
       text.innerText = "bi ingeed huleejiin 😔";
-      noClickCount++;
+      noClickCount = 1;
+      goRunAwayMode();
+    } else {
+      moveNoButton();
     }
   });
 
-  // Make "No" run away after first click/hover
-  function moveNoButton() {
-    if (noClickCount >= 1) {
-      const maxX = container.clientWidth - noBtn.offsetWidth - 20;
-      const maxY = container.clientHeight - noBtn.offsetHeight - 20;
-      const i = Math.floor(Math.random() * maxX);
-      const j = Math.floor(Math.random() * maxY);
-      noBtn.style.left = `${i}px`;
-      noBtn.style.top  = `${j}px`;
-      noBtn.style.transform = ""; // cancel initial centering transform
-    }
-  }
-  noBtn.addEventListener("mouseover", moveNoButton);
-  noBtn.addEventListener("touchstart", moveNoButton); // mobile support
+  // After first click, hovering/touching makes it run
+  noBtn.addEventListener("mouseover", () => { if (noClickCount >= 1) moveNoButton(); });
+  noBtn.addEventListener("touchstart", () => { if (noClickCount >= 1) moveNoButton(); }, {passive:true});
 
   yesBtn.addEventListener("click", () => {
-    mainImg.src = "IMG_4905.jpg";            // ✅ exact filename + quotes
+    mainImg.src = "IMG_4905.jpg";     // exact filename + case
     text.innerHTML = "hairtaishuu, uuchilsand bayarlalaa 💗";
     text.style.fontSize = "24px";
     heart.innerHTML = "🎉🎊💗🎊🎉";
